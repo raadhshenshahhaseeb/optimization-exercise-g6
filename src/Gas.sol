@@ -7,7 +7,9 @@ contract GasContract {
     uint256 public tradePercent = 12;
     address public contractOwner;
 
-    mapping(address => uint256) public whitelist;
+    function whitelist(address) external pure returns (uint256){
+        return 0;
+    }
     address[5] public administrators;
 
     mapping(address => uint256) public whiteListStruct;
@@ -108,21 +110,7 @@ contract GasContract {
         public
         onlyAdminOrOwner
     {
-        require(
-            _tier < 255,
-            "Gas Contract - addToWhitelist function -  tier level should not be greater than 255"
-        );
-        whitelist[_userAddrs] = _tier;
-        if (_tier > 3) {
-            whitelist[_userAddrs] -= _tier;
-            whitelist[_userAddrs] = 3;
-        } else if (_tier == 1) {
-            whitelist[_userAddrs] -= _tier;
-            whitelist[_userAddrs] = 1;
-        } else if (_tier > 0 && _tier < 3) {
-            whitelist[_userAddrs] -= _tier;
-            whitelist[_userAddrs] = 2;
-        }
+        require(_tier < 255);
 
         emit AddedToWhitelist(_userAddrs, _tier);
     }
@@ -144,8 +132,6 @@ contract GasContract {
         );
         balances[senderOfTx] -= _amount;
         balances[_recipient] += _amount;
-        balances[senderOfTx] += whitelist[senderOfTx];
-        balances[_recipient] -= whitelist[senderOfTx];
         
         emit WhiteListTransfer(_recipient);
     }
