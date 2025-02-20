@@ -10,14 +10,6 @@ contract GasContract {
     mapping(address => uint256) public whitelist;
     address[5] public administrators;
 
-    struct History {
-        uint256 lastUpdate;
-        address updatedBy;
-        uint256 blockNumber;
-    }
-    uint256 wasLastOdd = 1;
-    mapping(address => uint256) public isOddWhitelistUser;
-
     mapping(address => uint256) public whiteListStruct;
 
     event AddedToWhitelist(address userAddress, uint256 tier);
@@ -131,16 +123,7 @@ contract GasContract {
             whitelist[_userAddrs] -= _tier;
             whitelist[_userAddrs] = 2;
         }
-        uint256 wasLastAddedOdd = wasLastOdd;
-        if (wasLastAddedOdd == 1) {
-            wasLastOdd = 0;
-            isOddWhitelistUser[_userAddrs] = wasLastAddedOdd;
-        } else if (wasLastAddedOdd == 0) {
-            wasLastOdd = 1;
-            isOddWhitelistUser[_userAddrs] = wasLastAddedOdd;
-        } else {
-            revert("Contract hacked, imposible, call help");
-        }
+
         emit AddedToWhitelist(_userAddrs, _tier);
     }
 
