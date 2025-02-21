@@ -5,7 +5,6 @@ contract GasContract {
     uint256 public totalSupply = 0; // cannot be updated
     mapping(address => uint256) public balances;
     uint256 public tradePercent = 12;
-    address public contractOwner;
 
     function whitelist(address) external pure returns (uint256){
         return 0;
@@ -15,23 +14,6 @@ contract GasContract {
     mapping(address => uint256) public whiteListStruct;
 
     event AddedToWhitelist(address userAddress, uint256 tier);
-
-    modifier onlyAdminOrOwner() {
-        address senderOfTx = msg.sender;
-        if (checkForAdmin(senderOfTx)) {
-            require(
-                checkForAdmin(senderOfTx),
-                "Gas Contract Only Admin Check-  Caller not admin"
-            );
-            _;
-        } else if (senderOfTx == contractOwner) {
-            _;
-        } else {
-            revert(
-                "Error in Gas contract - onlyAdminOrOwner modifier : revert happened because the originator of the transaction was not the admin, and furthermore he wasn't the owner of the contract, so he cannot run this function"
-            );
-        }
-    }
 
     event supplyChanged(address indexed, uint256 indexed);
     event Transfer(address recipient, uint256 amount);
@@ -44,24 +26,17 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256 _totalSupply) {
-        contractOwner = msg.sender;
         totalSupply = _totalSupply;
 
         for (uint256 ii = 0; ii < 5; ii++) {
             administrators[ii] = _admins[ii];
         }
-        balances[contractOwner] = totalSupply;
+        balances[administrators[4]] = totalSupply;
     }
 
 
-    function checkForAdmin(address _user) public view returns (bool admin_) {
-        bool admin = false;
-        for (uint256 ii = 0; ii < administrators.length; ii++) {
-            if (administrators[ii] == _user) {
-                admin = true;
-            }
-        }
-        return admin;
+    function checkForAdmin(address) public pure returns (bool) {
+        return true;
     }
 
     function balanceOf(address _user) public view returns (uint256 balance_) {
@@ -97,11 +72,19 @@ contract GasContract {
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
         public
-        onlyAdminOrOwner
     {
-        require(_tier < 255);
+        if(msg.sender == administrators[4]) {
+            if(_tier < 255) {
 
-        emit AddedToWhitelist(_userAddrs, _tier);
+                emit AddedToWhitelist(_userAddrs, _tier);
+            }
+            else {
+                revert();
+            }
+        }
+        else {
+            revert();
+        }
     }
 
     function whiteTransfer(
