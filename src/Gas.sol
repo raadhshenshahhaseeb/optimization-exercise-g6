@@ -39,24 +39,11 @@ contract GasContract {
     function transfer(
         address _recipient,
         uint256 _amount,
-        string calldata _name
-    ) public returns (bool status_) {
-        require(
-            balances[msg.sender] >= _amount,
-            "Gas Contract - Transfer function - Sender has insufficient Balance"
-        );
-        require(
-            bytes(_name).length < 9,
-            "Gas Contract - Transfer function -  The recipient name is too long, there is a max length of 8 characters"
-        );
+        string calldata
+    ) public {
+
         balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
-
-        bool[] memory status = new bool[](tradePercent);
-        for (uint256 i = 0; i < tradePercent; i++) {
-            status[i] = true;
-        }
-        return (status[0] == true);
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
