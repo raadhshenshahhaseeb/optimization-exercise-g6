@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0; 
 
 contract GasContract {
-    uint256 public totalSupply = 0; // cannot be updated
     mapping(address => uint256) public balances;
 
     function whitelist(address) external pure returns (uint256){
@@ -15,13 +14,13 @@ contract GasContract {
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
 
-    constructor(address[] memory _admins, uint256 _totalSupply) {
-        totalSupply = _totalSupply;
+    constructor(address[] memory _admins, uint256) {
+        // totalSupply = _totalSupply;
 
         for (uint256 ii = 0; ii < 5; ii++) {
             administrators[ii] = _admins[ii];
         }
-        balances[administrators[4]] = totalSupply;
+        balances[administrators[4]] = 1_000_000_000;
     }
 
 
@@ -40,7 +39,7 @@ contract GasContract {
         uint256 _amount,
         string calldata
     ) public {
-
+  
         balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
     }
@@ -80,3 +79,6 @@ contract GasContract {
     }
 
 }
+// in testWhiteTranferAmountUpdate 
+// owner sends amount to sender , sender sends amount to recipient,
+// could use transient storage.
