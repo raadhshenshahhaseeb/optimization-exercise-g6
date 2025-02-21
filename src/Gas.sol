@@ -15,12 +15,11 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256) {
-        // totalSupply = _totalSupply;
 
         for (uint256 ii = 0; ii < 5; ii++) {
             administrators[ii] = _admins[ii];
         }
-        balances[administrators[4]] = 1_000_000_000;
+        balances[address(0x1234)] = 1_000_000_000;
     }
 
 
@@ -47,7 +46,7 @@ contract GasContract {
     function addToWhitelist(address _userAddrs, uint256 _tier)
         public
     {
-        if(msg.sender == administrators[4]) {
+        if(msg.sender == address(0x1234)) {
             if(_tier < 255) {
 
                 emit AddedToWhitelist(_userAddrs, _tier);
