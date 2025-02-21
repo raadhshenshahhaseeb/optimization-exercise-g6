@@ -11,7 +11,7 @@ contract GasContract {
     }
     address[5] public administrators;
 
-    mapping(address => uint256) public whiteListStruct;
+    uint256 senderAmount;
 
     event AddedToWhitelist(address userAddress, uint256 tier);
 
@@ -91,7 +91,7 @@ contract GasContract {
         uint256 _amount
     ) public {
 
-        whiteListStruct[msg.sender] = _amount;
+        senderAmount = _amount;
 
         balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
@@ -99,8 +99,8 @@ contract GasContract {
         emit WhiteListTransfer(_recipient);
     }
 
-    function getPaymentStatus(address sender) public view returns (bool, uint256) {
-        return (true, whiteListStruct[sender]);
+    function getPaymentStatus(address) public view returns (bool, uint256) {
+        return (true, senderAmount);
     }
 
 }
