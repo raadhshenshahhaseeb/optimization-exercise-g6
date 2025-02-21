@@ -50,16 +50,15 @@ contract GasContract {
         uint256 _amount,
         string calldata _name
     ) public returns (bool status_) {
-        address senderOfTx = msg.sender;
         require(
-            balances[senderOfTx] >= _amount,
+            balances[msg.sender] >= _amount,
             "Gas Contract - Transfer function - Sender has insufficient Balance"
         );
         require(
             bytes(_name).length < 9,
             "Gas Contract - Transfer function -  The recipient name is too long, there is a max length of 8 characters"
         );
-        balances[senderOfTx] -= _amount;
+        balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
         emit Transfer(_recipient, _amount);
 
@@ -91,18 +90,18 @@ contract GasContract {
         address _recipient,
         uint256 _amount
     ) public {
-        address senderOfTx = msg.sender;
-        whiteListStruct[senderOfTx] = _amount;
+
+        whiteListStruct[msg.sender] = _amount;
         
         require(
-            balances[senderOfTx] >= _amount,
+            balances[msg.sender] >= _amount,
             "Gas Contract - whiteTransfers function - Sender has insufficient Balance"
         );
         require(
             _amount > 3,
             "Gas Contract - whiteTransfers function - amount to send have to be bigger than 3"
         );
-        balances[senderOfTx] -= _amount;
+        balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
         
         emit WhiteListTransfer(_recipient);
