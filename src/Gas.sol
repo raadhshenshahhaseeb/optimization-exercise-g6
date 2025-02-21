@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 contract GasContract {
     uint256 public totalSupply = 0; // cannot be updated
     mapping(address => uint256) public balances;
-    uint256 public tradePercent = 12;
 
     function whitelist(address) external pure returns (uint256){
         return 0;
