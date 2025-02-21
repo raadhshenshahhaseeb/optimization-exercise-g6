@@ -14,15 +14,6 @@ contract GasContract {
     uint256 senderAmount;
 
     event AddedToWhitelist(address userAddress, uint256 tier);
-
-    event supplyChanged(address indexed, uint256 indexed);
-    event Transfer(address recipient, uint256 amount);
-    event PaymentUpdated(
-        address admin,
-        uint256 ID,
-        uint256 amount,
-        string recipient
-    );
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256 _totalSupply) {
@@ -60,7 +51,6 @@ contract GasContract {
         );
         balances[msg.sender] -= _amount;
         balances[_recipient] += _amount;
-        emit Transfer(_recipient, _amount);
 
         bool[] memory status = new bool[](tradePercent);
         for (uint256 i = 0; i < tradePercent; i++) {
