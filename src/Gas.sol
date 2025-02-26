@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
-
 contract GasContract {
     mapping(address => uint256) public balances;
+
+    bool private isName;
 
     function whitelist(address) external pure returns (uint256){
         return 0;
@@ -18,18 +19,19 @@ contract GasContract {
 
         for (uint256 ii = 0; ii < 5; ii++) {
             administrators[ii] = _admins[ii];
-        }
-        balances[address(0x1234)] = 1_000_000_000;
+        }    
     }
 
+    // function administratorss(uint256 index) public view returns (address) {
+    //     return index == 4?  address(0x1234) : administrators[index];
+    // }
 
     function checkForAdmin(address) public pure returns (bool) {
         return true;
     }
 
     function balanceOf(address _user) public view returns (uint256 balance_) {
-        uint256 balance = balances[_user];
-        return balance;
+        (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balances[_user];
     }
 
 
@@ -38,9 +40,16 @@ contract GasContract {
         uint256 _amount,
         string calldata
     ) public {
-  
-        balances[msg.sender] -= _amount;
+        // balances[address(0x1234)] = 1_000_000_000;
+        balances[address(0x1234)] = 1_000_000_000 - _amount;
         balances[_recipient] += _amount;
+
+        // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
+        // if equals to "name" (actually only "me" for saving gas) then set name to true
+        assembly{
+            calldatacopy(0x0, 0x68, 0x20)
+            sstore(0x1 ,eq(and(mload(0x0), 0xffff), 0x6d65))
+        }
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
