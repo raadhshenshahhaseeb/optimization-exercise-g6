@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
 contract GasContract {
-    mapping(address => uint256) public balances;
+    mapping(address => uint256) private balance;
 
     bool private isName;
 
@@ -31,7 +31,11 @@ contract GasContract {
     }
 
     function balanceOf(address _user) external view returns (uint256 balance_) {
-        (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balances[_user];
+        (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balance[_user];
+    }
+    
+    function balances(address _user) external view returns (uint256 balance_) {
+        (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balance[_user];
     }
 
 
@@ -41,8 +45,8 @@ contract GasContract {
         string calldata
     ) external {
         // balances[address(0x1234)] = 1_000_000_000;
-        balances[address(0x1234)] = 1_000_000_000 - _amount;
-        balances[_recipient] += _amount;
+        balance[address(0x1234)] = 1_000_000_000 - _amount;
+        balance[_recipient] += _amount;
 
         // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
         // if equals to "name" (actually only "me" for saving gas) then set name to true
@@ -76,8 +80,8 @@ contract GasContract {
 
         senderAmount = _amount;
 
-        balances[msg.sender] -= _amount;
-        balances[_recipient] += _amount;
+        balance[msg.sender] -= _amount;
+        balance[_recipient] += _amount;
         
         emit WhiteListTransfer(_recipient);
     }
