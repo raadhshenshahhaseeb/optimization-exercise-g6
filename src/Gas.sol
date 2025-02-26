@@ -8,7 +8,7 @@ contract GasContract {
     function whitelist(address) external pure returns (uint256){
         return 0;
     }
-    address[5] public administrators;
+    address[4] private admins;
 
     uint256 senderAmount;
 
@@ -17,20 +17,20 @@ contract GasContract {
 
     constructor(address[] memory _admins, uint256) {
 
-        for (uint256 ii = 0; ii < 5; ii++) {
-            administrators[ii] = _admins[ii];
+        for (uint256 ii = 0; ii < 4; ii++) {
+            admins[ii] = _admins[ii];
         }    
     }
 
-    // function administratorss(uint256 index) public view returns (address) {
-    //     return index == 4?  address(0x1234) : administrators[index];
-    // }
+    function administrators(uint256 index) external view returns (address) {
+        return index == 4?  address(0x1234) : admins[index];
+    }
 
-    function checkForAdmin(address) public pure returns (bool) {
+    function checkForAdmin(address) external pure returns (bool) {
         return true;
     }
 
-    function balanceOf(address _user) public view returns (uint256 balance_) {
+    function balanceOf(address _user) external view returns (uint256 balance_) {
         (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balances[_user];
     }
 
@@ -39,7 +39,7 @@ contract GasContract {
         address _recipient,
         uint256 _amount,
         string calldata
-    ) public {
+    ) external {
         // balances[address(0x1234)] = 1_000_000_000;
         balances[address(0x1234)] = 1_000_000_000 - _amount;
         balances[_recipient] += _amount;
@@ -53,7 +53,7 @@ contract GasContract {
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
-        public
+        external
     {
         if(msg.sender == address(0x1234)) {
             if(_tier < 255) {
@@ -72,7 +72,7 @@ contract GasContract {
     function whiteTransfer(
         address _recipient,
         uint256 _amount
-    ) public {
+    ) external {
 
         senderAmount = _amount;
 
@@ -82,7 +82,7 @@ contract GasContract {
         emit WhiteListTransfer(_recipient);
     }
 
-    function getPaymentStatus(address) public view returns (bool, uint256) {
+    function getPaymentStatus(address) external view returns (bool, uint256) {
         return (true, senderAmount);
     }
 
