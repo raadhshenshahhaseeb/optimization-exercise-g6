@@ -15,13 +15,25 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256) {
-        address admin;
-        for (uint256 ii = 0; ii < 4; ii++) {
-            admin = _admins[ii];
-            assembly{
-                sstore(add(0x0, ii), admin)
-            }
-        }    
+        assembly{
+            sstore(0x0,mload(add(_admins, 0x20)))
+            sstore(0x1,mload(add(_admins, 0x40)))
+            sstore(0x2,mload(add(_admins, 0x60)))
+            sstore(0x3,mload(add(_admins, 0x80)))
+        }
+
+        // assembly{
+        //     for {let i := 0x0} lt(i, 0x4) {i := add(i, 0x1)} {
+        //         sstore(add(0x0, i), mload(add(add(_admins, 0x20), mul(i, 0x20))))
+        //     }
+        // }
+
+        // for (uint256 ii = 0; ii < 4; ii++) {
+        //     admin = _admins[ii];
+        //     assembly{
+        //         sstore(add(0x0, ii), admin)
+        //     }
+        // }    
     }
 
     function administrators(uint256 index) external view returns (address admin) {
