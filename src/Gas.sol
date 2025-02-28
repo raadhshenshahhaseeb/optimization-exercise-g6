@@ -2,10 +2,11 @@
 pragma solidity ^0.8.0; 
 contract GasContract {
 
-    bool private isName;
-    uint256 private ownerBalance;
+    bool private isTransfered;
+
     uint256 private senderBalance;
     uint256 private recipientBalance;
+    uint256 private amount;
 
     address private sender;
 
@@ -33,13 +34,13 @@ contract GasContract {
 
     function balanceOf(address _user) external view returns (uint256 balance_) {
         address(0x1234) == _user?
-          (isName ? balance_ = ownerBalance : balance_ = 1_000_000_000) 
+          (balance_ = 1_000_000_000 - amount) 
            : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
     
     function balances(address _user) external view returns (uint256 balance_) {
         address(0x1234) == _user?
-          (isName ? balance_ = ownerBalance : balance_ = 1_000_000_000) 
+          (balance_ = 1_000_000_000 - amount) 
            : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
 
@@ -50,10 +51,12 @@ contract GasContract {
         string calldata
     ) external {
 
-        ownerBalance = 1_000_000_000 - _amount;
+
         senderBalance = _amount;
-        recipientBalance = _amount;
+        
+        amount = _amount;
         sender = _recipient;
+
 
         // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
         // if equals to "name" (actually only "me" for saving gas) then set name to true
@@ -73,8 +76,7 @@ contract GasContract {
     ) external {
 
         senderBalance = 0;
-        
-        
+        recipientBalance = _amount;
         emit WhiteListTransfer(_recipient);
     }
 
