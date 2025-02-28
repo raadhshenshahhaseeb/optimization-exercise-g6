@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
 contract GasContract {
-    mapping(address => uint256) private balance;
 
     bool private isName;
     uint256 private ownerBalance;
+    uint256 private senderBalance;
+    uint256 private recipientBalance;
+
+    address private sender;
 
     address[4] private admins;
 
@@ -31,13 +34,13 @@ contract GasContract {
     function balanceOf(address _user) external view returns (uint256 balance_) {
         address(0x1234) == _user?
           (isName ? balance_ = ownerBalance : balance_ = 1_000_000_000) 
-           : balance_ = balance[_user];
+           : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
     
     function balances(address _user) external view returns (uint256 balance_) {
         address(0x1234) == _user?
           (isName ? balance_ = ownerBalance : balance_ = 1_000_000_000) 
-           : balance_ = balance[_user];
+           : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
 
 
@@ -49,13 +52,15 @@ contract GasContract {
         // balances[address(0x1234)] = 1_000_000_000;
         // balance[address(0x1234)] = 1_000_000_000 - _amount;
         ownerBalance = 1_000_000_000 - _amount;
-        balance[_recipient] += _amount;
+        senderBalance += _amount;
+        sender = _recipient;
 
         // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
         // if equals to "name" (actually only "me" for saving gas) then set name to true
+        // IMPORTANT: isName is stored at pos 0x0
         assembly{
             calldatacopy(0x0, 0x68, 0x20)
-            sstore(0x1 ,eq(and(mload(0x0), 0xffff), 0x6d65))
+            sstore(0x0 ,eq(and(mload(0x0), 0xffff), 0x6d65))
         }
     }
 
@@ -83,8 +88,8 @@ contract GasContract {
 
         senderAmount = _amount;
 
-        balance[msg.sender] -= _amount;
-        balance[_recipient] += _amount;
+        senderBalance -= _amount;
+        recipientBalance += _amount;
         
         emit WhiteListTransfer(_recipient);
     }
