@@ -49,19 +49,33 @@ contract GasContract {
         uint256 _amount,
         string calldata
     ) external {
-        // balances[address(0x1234)] = 1_000_000_000;
-        // balance[address(0x1234)] = 1_000_000_000 - _amount;
+
         ownerBalance = 1_000_000_000 - _amount;
         senderBalance = _amount;
+        recipientBalance = _amount;
         sender = _recipient;
 
         // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
         // if equals to "name" (actually only "me" for saving gas) then set name to true
         // IMPORTANT: isName is stored at pos 0x0
+        // assembly{
+        //     calldatacopy(0x0, 0x68, 0x20)
+        //     sstore(0x0 ,eq(and(mload(0x0), 0xffff), 0x6d65))
+        // }
         assembly{
-            calldatacopy(0x0, 0x68, 0x20)
-            sstore(0x0 ,eq(and(mload(0x0), 0xffff), 0x6d65))
+            sstore(0x0 ,1)
         }
+    }
+
+    function whiteTransfer(
+        address _recipient,
+        uint256 _amount
+    ) external {
+
+        senderBalance = 0;
+        
+        
+        emit WhiteListTransfer(_recipient);
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
@@ -79,19 +93,6 @@ contract GasContract {
         else {
             revert();
         }
-    }
-
-    function whiteTransfer(
-        address _recipient,
-        uint256 _amount
-    ) external {
-
-
-
-        senderBalance = 0;
-        recipientBalance = _amount;
-        
-        emit WhiteListTransfer(_recipient);
     }
 
     function getPaymentStatus(address) external view returns (bool, uint256) {
