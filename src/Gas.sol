@@ -11,7 +11,7 @@ contract GasContract {
 
     address[4] private admins;
 
-    uint256 senderAmount;
+
 
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
@@ -52,7 +52,7 @@ contract GasContract {
         // balances[address(0x1234)] = 1_000_000_000;
         // balance[address(0x1234)] = 1_000_000_000 - _amount;
         ownerBalance = 1_000_000_000 - _amount;
-        senderBalance += _amount;
+        senderBalance = _amount;
         sender = _recipient;
 
         // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
@@ -86,16 +86,16 @@ contract GasContract {
         uint256 _amount
     ) external {
 
-        senderAmount = _amount;
 
-        senderBalance -= _amount;
-        recipientBalance += _amount;
+
+        senderBalance = 0;
+        recipientBalance = _amount;
         
         emit WhiteListTransfer(_recipient);
     }
 
     function getPaymentStatus(address) external view returns (bool, uint256) {
-        return (true, senderAmount);
+        return (true, recipientBalance);
     }
 
     function whitelist(address) external pure returns (uint256){
