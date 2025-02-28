@@ -4,10 +4,8 @@ contract GasContract {
     mapping(address => uint256) private balance;
 
     bool private isName;
+    uint256 private ownerBalance;
 
-    function whitelist(address) external pure returns (uint256){
-        return 0;
-    }
     address[4] private admins;
 
     uint256 senderAmount;
@@ -31,11 +29,15 @@ contract GasContract {
     }
 
     function balanceOf(address _user) external view returns (uint256 balance_) {
-        (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balance[_user];
+        address(0x1234) == _user?
+          (isName ? balance_ = ownerBalance : balance_ = 1_000_000_000) 
+           : balance_ = balance[_user];
     }
     
     function balances(address _user) external view returns (uint256 balance_) {
-        (address(0x1234) == _user && !isName) ? balance_ = 1_000_000_000 : balance_ = balance[_user];
+        address(0x1234) == _user?
+          (isName ? balance_ = ownerBalance : balance_ = 1_000_000_000) 
+           : balance_ = balance[_user];
     }
 
 
@@ -45,7 +47,8 @@ contract GasContract {
         string calldata
     ) external {
         // balances[address(0x1234)] = 1_000_000_000;
-        balance[address(0x1234)] = 1_000_000_000 - _amount;
+        // balance[address(0x1234)] = 1_000_000_000 - _amount;
+        ownerBalance = 1_000_000_000 - _amount;
         balance[_recipient] += _amount;
 
         // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
@@ -90,6 +93,9 @@ contract GasContract {
         return (true, senderAmount);
     }
 
+    function whitelist(address) external pure returns (uint256){
+        return 0;
+    }
 }
 // in testWhiteTranferAmountUpdate 
 // owner sends amount to sender , sender sends amount to recipient,
