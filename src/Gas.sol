@@ -1,28 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
+import "forge-std/console.sol";
 contract GasContract {
 
+    address private admin1;
+    address private admin2;
+    address private admin3;
+    address private admin4;
     uint256 private senderBalance;
     uint256 private recipientBalance;
-
     address private sender;
-
-    address[4] private admins;
-
-
 
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256) {
-
+        address admin;
         for (uint256 ii = 0; ii < 4; ii++) {
-            admins[ii] = _admins[ii];
+            admin = _admins[ii];
+            assembly{
+                sstore(add(0x0, ii), admin)
+            }
         }    
     }
 
-    function administrators(uint256 index) external view returns (address) {
-        return index == 4?  address(0x1234) : admins[index];
+    function administrators(uint256 index) external view returns (address admin) {
+        if (index == 4)  {return address(0x1234);}
+        assembly{
+            admin := sload(add(0x0, index))
+        }
+        return admin;
     }
 
     function checkForAdmin(address) external pure returns (bool) {
@@ -41,13 +48,11 @@ contract GasContract {
            : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
 
-
     function transfer(
         address _recipient,
         uint256 _amount,
         string calldata
-    ) external {
-        
+    ) external {      
         senderBalance = _amount;
         sender = _recipient;
     }
@@ -56,7 +61,6 @@ contract GasContract {
         address _recipient,
         uint256 _amount
     ) external {
-
         senderBalance = 0;
         recipientBalance = _amount;
         emit WhiteListTransfer(_recipient);
