@@ -2,11 +2,8 @@
 pragma solidity ^0.8.0; 
 contract GasContract {
 
-    bool private isTransfered;
-
     uint256 private senderBalance;
     uint256 private recipientBalance;
-    uint256 private amount;
 
     address private sender;
 
@@ -34,13 +31,13 @@ contract GasContract {
 
     function balanceOf(address _user) external view returns (uint256 balance_) {
         address(0x1234) == _user?
-          (balance_ = 1_000_000_000 - amount) 
+          (balance_ = 1_000_000_000 - senderBalance) 
            : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
     
     function balances(address _user) external view returns (uint256 balance_) {
         address(0x1234) == _user?
-          (balance_ = 1_000_000_000 - amount) 
+          (balance_ = 1_000_000_000 - senderBalance) 
            : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
     }
 
@@ -50,24 +47,9 @@ contract GasContract {
         uint256 _amount,
         string calldata
     ) external {
-
-
-        senderBalance = _amount;
         
-        amount = _amount;
+        senderBalance = _amount;
         sender = _recipient;
-
-
-        // copy in memory the name which is at pos 0x84 so I load 32 bytes at pos 0x68
-        // if equals to "name" (actually only "me" for saving gas) then set name to true
-        // IMPORTANT: isName is stored at pos 0x0
-        // assembly{
-        //     calldatacopy(0x0, 0x68, 0x20)
-        //     sstore(0x0 ,eq(and(mload(0x0), 0xffff), 0x6d65))
-        // }
-        assembly{
-            sstore(0x0 ,1)
-        }
     }
 
     function whiteTransfer(
