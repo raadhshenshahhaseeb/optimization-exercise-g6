@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
-import "forge-std/console.sol";
 contract GasContract {
 
-    address private admin1;
-    address private admin2;
-    address private admin3;
+    bytes32 private admin12;
+    bytes32 private admin23;
     address private admin4;
     uint256 private senderBalance;
     uint256 private recipientBalance;
@@ -16,12 +14,17 @@ contract GasContract {
 
     constructor(address[] memory _admins, uint256) {
         assembly{
-            sstore(0x0,mload(add(_admins, 0x20)))
-            sstore(0x1,mload(add(_admins, 0x40)))
-            sstore(0x2,mload(add(_admins, 0x60)))
-            sstore(0x3,mload(add(_admins, 0x80)))
-        }
+            let address1 := mload(add(_admins, 0x20))
+            let address2 := mload(add(_admins, 0x40))
+            let address3 := mload(add(_admins, 0x60))
+            let half1Address2 := and(shr(80, address2), 0xFFFFFFFFFFFFFFFFFFFF)
+            let half2Address2 := shl(160, and(address2, 0xFFFFFFFFFFFFFFFFFFFF))
 
+            sstore(0x0, add(shl(80, address1), half1Address2))
+            sstore(0x1, add(address3, half2Address2))
+            sstore(0x2, mload(add(_admins, 0x80)))
+        }
+        
         // assembly{
         //     for {let i := 0x0} lt(i, 0x4) {i := add(i, 0x1)} {
         //         sstore(add(0x0, i), mload(add(add(_admins, 0x20), mul(i, 0x20))))
@@ -37,11 +40,35 @@ contract GasContract {
     }
 
     function administrators(uint256 index) external view returns (address admin) {
-        if (index == 4)  {return address(0x1234);}
+        // if (index == 4)  {return address(0x1234);}
+        // assembly{
+        //     admin := sload(add(0x0, index))
+        // }
+        // return admin;
+
         assembly{
-            admin := sload(add(0x0, index))
+            switch index 
+                case 0 {
+                    admin := shr(80, sload(0x0))
+                }
+                case 1 {
+                    let mem1 := shl(80, and(sload(0x0), 0xFFFFFFFFFFFFFFFFFFFF))
+                    let mem2 := shr(160, sload(0x1))
+                    admin := add(mem1, mem2)
+                }
+                case 2 {
+                    admin := sload(0x1)
+                }
+                case 3 {
+                    admin := sload(0x2)
+                }
+                case 4 {
+                    admin := 0x1234
+                }
+                default {
+                    admin := 0
+                }
         }
-        return admin;
     }
 
     function checkForAdmin(address) external pure returns (bool) {
