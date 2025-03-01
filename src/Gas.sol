@@ -72,12 +72,13 @@ contract GasContract {
                     mstore(0x0, sload(0x2))
                     return(0x0, 0x20)
                 }
-                case 4 {
+                // case 4 {
+                //     mstore(0x0, 0x1234)
+                //     return(0x0, 0x20)
+                // }
+                default {
                     mstore(0x0, 0x1234)
                     return(0x0, 0x20)
-                }
-                default {
-                    revert(0, 0)
                 }
         }
     }
