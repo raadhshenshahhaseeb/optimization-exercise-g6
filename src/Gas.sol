@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
+// import "forge-std/console.sol";
 contract GasContract {
 
     bytes32 private admin12;
@@ -13,6 +14,10 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256) {
+        // console.log("admin1", _admins[0]);
+        // console.log("admin2", _admins[1]);
+        // console.log("admin3", _admins[2]);
+        // console.log("admin4", _admins[3]);
         assembly{
             let address1 := mload(add(_admins, 0x20))
             let address2 := mload(add(_admins, 0x40))
@@ -39,7 +44,7 @@ contract GasContract {
         // }    
     }
 
-    function administrators(uint256 index) external view returns (address admin) {
+    function administrators(uint256 index) external view returns (address) {
         // if (index == 4)  {return address(0x1234);}
         // assembly{
         //     admin := sload(add(0x0, index))
@@ -49,24 +54,30 @@ contract GasContract {
         assembly{
             switch index 
                 case 0 {
-                    admin := shr(80, sload(0x0))
+                    mstore(0x0, shr(80, sload(0x0)))
+                    return(0x0, 0x20)
                 }
                 case 1 {
-                    let mem1 := shl(80, and(sload(0x0), 0xFFFFFFFFFFFFFFFFFFFF))
-                    let mem2 := shr(160, sload(0x1))
-                    admin := add(mem1, mem2)
+                    let x := shl(176, sload(0x0))
+                    mstore(0x0, shr(96, x))
+                    mstore(0x16, shl(16, sload(0x1)))
+                    return(0x0, 0x20)
                 }
                 case 2 {
-                    admin := sload(0x1)
+                    let x := shl(96, sload(0x1))
+                    mstore(0x0, shr(96, x))
+                    return(0x0, 0x20)
                 }
                 case 3 {
-                    admin := sload(0x2)
+                    mstore(0x0, sload(0x2))
+                    return(0x0, 0x20)
                 }
                 case 4 {
-                    admin := 0x1234
+                    mstore(0x0, 0x1234)
+                    return(0x0, 0x20)
                 }
                 default {
-                    admin := 0
+                    revert(0, 0)
                 }
         }
     }
