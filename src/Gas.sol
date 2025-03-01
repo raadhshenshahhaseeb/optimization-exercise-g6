@@ -14,10 +14,10 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256) {
-        // console.log("admin1", _admins[0]);
-        // console.log("admin2", _admins[1]);
-        // console.log("admin3", _admins[2]);
-        // console.log("admin4", _admins[3]);
+        
+        // admin12 = admin1|admin2(1st half)
+        // admin23 = admin2(2nd half)|admin3
+        // admin4 = admin4
         assembly{
             let address1 := mload(add(_admins, 0x20))
             let address2 := mload(add(_admins, 0x40))
@@ -103,17 +103,31 @@ contract GasContract {
         uint256 _amount,
         string calldata
     ) external {      
-        senderBalance = _amount;
-        sender = _recipient;
+        // senderBalance = _amount;
+        // sender = _recipient;
+        assembly{
+            sstore(0x3, _amount)
+            sstore(0x5, _recipient)
+        }
     }
 
     function whiteTransfer(
         address _recipient,
         uint256 _amount
     ) external {
-        senderBalance = 0;
-        recipientBalance = _amount;
-        emit WhiteListTransfer(_recipient);
+        // senderBalance = 0;
+        // recipientBalance = _amount;
+        assembly{
+            sstore(0x3, 0)
+            sstore(0x4, _amount)
+            
+            // Emit WhiteListTransfer event
+            // Event signature: keccak256("WhiteListTransfer(address)")
+            // let signature := 0x98eaee7299e9cbfa56cf530fd3a0c6dfa0ccddf4f837b8f025651ad9594647b3
+            mstore(0x0, 0x57686974654C6973745472616E73666572286164647265737329)
+            
+            log2(0, 0, keccak256(0x6, 0x1a), _recipient)
+        }
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier)
