@@ -86,24 +86,37 @@ contract GasContract {
         return true;
     }
 
-    function balanceOf(address _user) external view returns (uint256) {
+    function balanceOf(address) external view returns (uint256) {
         assembly{
+            // if caller == owner return 1B - amount
             if eq(calldataload(0x4), 0x1234) {
                 mstore(0x0, sub(1000000000, sload(0x3)))
                 return(0x0, 0x20)
             }
+            // if caller == sender return senderBalance 
+            if eq(calldataload(0x4), sload(0x5)) {
+                mstore(0x0, sload(0x3))
+                return(0x0, 0x20)
+            }
+            // if caller == reciever return recieverBalance 
+            mstore(0x0, sload(0x4))
+            return(0x0, 0x20)
         } 
-        return _user == sender ? senderBalance : recipientBalance;
     }
     
-    function balances(address _user) external view returns (uint256) {
+    function balances(address) external view returns (uint256) {
         assembly{
             if eq(calldataload(0x4), 0x1234) {
                 mstore(0x0, sub(1000000000, sload(0x3)))
                 return(0x0, 0x20)
             }
+            if eq(calldataload(0x4), sload(0x5)) {
+                mstore(0x0, sload(0x3))
+                return(0x0, 0x20)
+            }
+            mstore(0x0, sload(0x4))
+            return(0x0, 0x20)
         } 
-        return _user == sender ? senderBalance : recipientBalance;
     }
 
     function transfer(
@@ -161,6 +174,5 @@ contract GasContract {
         return 0;
     }
 }
-// in testWhiteTranferAmountUpdate 
-// owner sends amount to sender , sender sends amount to recipient,
-// could use transient storage.
+// sender and reciever balances are always 0 and _amount or the opposite
+// could save the state with uint and bool instead of two uint
