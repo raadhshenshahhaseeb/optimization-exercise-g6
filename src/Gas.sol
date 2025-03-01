@@ -124,19 +124,39 @@ contract GasContract {
             // Emit WhiteListTransfer event
             // Event signature: keccak256("WhiteListTransfer(address)")
             // let signature := 0x98eaee7299e9cbfa56cf530fd3a0c6dfa0ccddf4f837b8f025651ad9594647b3
+            // WhiteListTransfer(address) ASCII
             mstore(0x0, 0x57686974654C6973745472616E73666572286164647265737329)
             
             log2(0, 0, keccak256(0x6, 0x1a), _recipient)
         }
     }
 
-    function addToWhitelist(address _userAddrs, uint256 _tier)
+    function addToWhitelist(address, uint256 _tier)
         external
     {
+        // assembly{
+        //     if lt(calldataload(0x24), 254) {
+        //         if eq(caller(), 0x1234) {
+        //             // keccak256("AddedToWhitelist(address,uint256)")
+        //             mstore(0x0, 0x62c1e066774519db9fe35767c15fc33df2f016675b7cc0c330ed185f286a2d52)
+        //             calldatacopy(0x20, 0x4, 0x40)
+        //             log1(0x20, 0x40, mload(0x0))
+        //             return (0, 0)
+        //         }
+        //     }
+        //     revert (0, 0)
+        // }
+        
+
         if(msg.sender == address(0x1234)) {
             if(_tier < 255) {
 
-                emit AddedToWhitelist(_userAddrs, _tier);
+                assembly{
+                    mstore(0x0, 0x62c1e066774519db9fe35767c15fc33df2f016675b7cc0c330ed185f286a2d52)
+                    calldatacopy(0x20, 0x4, 0x40)
+                    log1(0x20, 0x40, mload(0x0))
+                    return(0, 0)
+                }
             }
             else {
                 revert();
