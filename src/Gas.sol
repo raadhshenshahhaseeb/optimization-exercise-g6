@@ -86,16 +86,24 @@ contract GasContract {
         return true;
     }
 
-    function balanceOf(address _user) external view returns (uint256 balance_) {
-        address(0x1234) == _user?
-          (balance_ = 1_000_000_000 - senderBalance) 
-           : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
+    function balanceOf(address _user) external view returns (uint256) {
+        assembly{
+            if eq(calldataload(0x4), 0x1234) {
+                mstore(0x0, sub(1000000000, sload(0x3)))
+                return(0x0, 0x20)
+            }
+        } 
+        return _user == sender ? senderBalance : recipientBalance;
     }
     
-    function balances(address _user) external view returns (uint256 balance_) {
-        address(0x1234) == _user?
-          (balance_ = 1_000_000_000 - senderBalance) 
-           : _user == sender ? balance_ = senderBalance : balance_ = recipientBalance;
+    function balances(address _user) external view returns (uint256) {
+        assembly{
+            if eq(calldataload(0x4), 0x1234) {
+                mstore(0x0, sub(1000000000, sload(0x3)))
+                return(0x0, 0x20)
+            }
+        } 
+        return _user == sender ? senderBalance : recipientBalance;
     }
 
     function transfer(
