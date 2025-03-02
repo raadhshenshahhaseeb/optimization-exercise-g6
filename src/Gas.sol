@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0; 
 contract GasContract {
 
-    // bytes32 private admin12;
-    // bytes32 private admin23;
-    // address private admin4;
     address private immutable admin1;
     address private immutable admin2;
     address private immutable admin3;
     address private immutable admin4;
+
     uint256 private senderBalance;
     uint256 private recipientBalance;
     address private sender;
@@ -17,23 +15,6 @@ contract GasContract {
     event WhiteListTransfer(address indexed);
 
     constructor(address[] memory _admins, uint256) {
-        
-        // admin12 = admin1|admin2(1st half)
-        // admin23 = admin2(2nd half)|admin3
-        // admin4 = admin4
-        // assembly{
-        //     let address1 := mload(add(_admins, 0x20))
-        //     let address2 := mload(add(_admins, 0x40))
-        //     let address3 := mload(add(_admins, 0x60))
-        //     let half1Address2 := shr(80, address2)
-        //     let half2Address2 := shl(160, and(address2, 0xFFFFFFFFFFFFFFFFFFFF))
-
-        //     sstore(0x0, add(shl(80, address1), half1Address2))
-        //     sstore(0x1, add(address3, half2Address2))
-        //     sstore(0x2, mload(add(_admins, 0x80)))
-        // }
-  
-
         admin1 = _admins[0];
         admin2 = _admins[1];
         admin3 = _admins[2];
@@ -41,41 +22,11 @@ contract GasContract {
     }
 
     function administrators(uint256 index) external view returns (address) {
-
         if (index == 0) return admin1;
         else if (index == 1) return admin2;
         else if (index == 2) return admin3;
         else if (index == 3) return admin4;
         else return address(0x1234);
-
-        // assembly {
-        //     // shift right 80 bits to clean admin12 from admin2 
-        //     if eq(index, 0) {
-        //         mstore(0x0, shr(80, sload(0x0)))
-        //         return(0x0, 0x20)
-        //     }
-        //     // shift left to clean admin12 from admin1, then shift right again and append admin23
-        //     if eq(index, 1) {
-        //         let x := shl(176, sload(0x0))
-        //         mstore(0x0, shr(96, x))
-        //         mstore(0x16, shl(16, sload(0x1)))
-        //         return(0x0, 0x20)
-        //     }
-        //     // shift left to clean admin23 from admin2
-        //     if eq(index, 2) {
-        //         let x := shl(96, sload(0x1))
-        //         mstore(0x0, shr(96, x))
-        //         return(0x0, 0x20)
-        //     }
-        //     // return admin4
-        //     if eq(index, 3) {
-        //         mstore(0x0, sload(0x2))
-        //         return(0x0, 0x20)
-        //     }
-        //     // return owner
-        //     mstore(0x0, 0x1234)
-        //     return(0x0, 0x20)
-        // }
     }
 
     function checkForAdmin(address) external pure returns (bool) {
@@ -138,8 +89,7 @@ contract GasContract {
             sstore(1, _amount)
             
             // Emit WhiteListTransfer event
-            // Event signature: keccak256("WhiteListTransfer(address)")
-            
+            // Event signature: keccak256("WhiteListTransfer(address)")            
             log2(0, 0, 0x98eaee7299e9cbfa56cf530fd3a0c6dfa0ccddf4f837b8f025651ad9594647b3, _recipient)
         }
     }

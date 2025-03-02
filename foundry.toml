@@ -4,9 +4,11 @@ out = 'out'
 libs = ['lib']
 optimizer = true
 optimizer_runs = 1
-via-ir=true
+via-ir = true
 no_cache = true
 force = true
+#sparse_mode = true
+solc_version = "0.8.22"
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
