@@ -21,7 +21,7 @@ contract GasContract {
             let address1 := mload(add(_admins, 0x20))
             let address2 := mload(add(_admins, 0x40))
             let address3 := mload(add(_admins, 0x60))
-            let half1Address2 := and(shr(80, address2), 0xFFFFFFFFFFFFFFFFFFFF)
+            let half1Address2 := shr(80, address2)
             let half2Address2 := shl(160, and(address2, 0xFFFFFFFFFFFFFFFFFFFF))
 
             sstore(0x0, add(shl(80, address1), half1Address2))
