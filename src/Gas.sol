@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0; 
-// import "forge-std/console.sol";
 contract GasContract {
 
     bytes32 private admin12;
@@ -173,5 +172,3 @@ contract GasContract {
         return 0;
     }
 }
-// sender and reciever balances are always 0 and _amount or the opposite
-// could save the state with uint and bool instead of two uint

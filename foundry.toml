@@ -4,6 +4,8 @@ out = 'out'
 libs = ['lib']
 optimizer = true
 optimizer_runs = 1
+via-ir=true
+no_cache = true
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
