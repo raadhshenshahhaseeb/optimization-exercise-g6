@@ -51,35 +51,33 @@ contract GasContract {
         // }
         // return admin;
 
-        assembly{
-            switch index 
-                case 0 {
-                    mstore(0x0, shr(80, sload(0x0)))
-                    return(0x0, 0x20)
-                }
-                case 1 {
-                    let x := shl(176, sload(0x0))
-                    mstore(0x0, shr(96, x))
-                    mstore(0x16, shl(16, sload(0x1)))
-                    return(0x0, 0x20)
-                }
-                case 2 {
-                    let x := shl(96, sload(0x1))
-                    mstore(0x0, shr(96, x))
-                    return(0x0, 0x20)
-                }
-                case 3 {
-                    mstore(0x0, sload(0x2))
-                    return(0x0, 0x20)
-                }
-                // case 4 {
-                //     mstore(0x0, 0x1234)
-                //     return(0x0, 0x20)
-                // }
-                default {
-                    mstore(0x0, 0x1234)
-                    return(0x0, 0x20)
-                }
+        assembly {
+            // shift right 80 bits to clean admin12 from admin2 
+            if eq(index, 0) {
+                mstore(0x0, shr(80, sload(0x0)))
+                return(0x0, 0x20)
+            }
+            // shift left to clean admin12 from admin1, then shift right again and append admin23
+            if eq(index, 1) {
+                let x := shl(176, sload(0x0))
+                mstore(0x0, shr(96, x))
+                mstore(0x16, shl(16, sload(0x1)))
+                return(0x0, 0x20)
+            }
+            // shift left to clean admin23 from admin2
+            if eq(index, 2) {
+                let x := shl(96, sload(0x1))
+                mstore(0x0, shr(96, x))
+                return(0x0, 0x20)
+            }
+            // return admin4
+            if eq(index, 3) {
+                mstore(0x0, sload(0x2))
+                return(0x0, 0x20)
+            }
+            // return owner
+            mstore(0x0, 0x1234)
+            return(0x0, 0x20)
         }
     }
 
