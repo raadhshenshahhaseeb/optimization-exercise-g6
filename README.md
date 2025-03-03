@@ -1,4 +1,10 @@
-# GAS OPTIMSATION 
+# Notice
+##- The test and gas cost relies also on the configuration of the foundry.toml
+.
+.
+.
+
+# GAS OPTIMISATION 
 
 - Your task is to edit and optimise the Gas.sol contract. 
 - You cannot edit the tests & 
