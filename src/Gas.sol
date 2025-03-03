@@ -29,29 +29,11 @@ contract GasContract {
         else return address(0x1234);
     }
 
-    function checkForAdmin(address) external pure returns (bool) {
-        return true;
-    }
-
-    function balanceOf(address) external view returns (uint256) {
-        assembly{
-            // if caller == owner return 1B - amount
-            if eq(calldataload(0x4), 0x1234) {
-                mstore(0x0, sub(1000000000, sload(0)))
-                return(0x0, 0x20)
-            }
-            // if caller == sender return senderBalance 
-            if eq(calldataload(0x4), sload(2)) {
-                mstore(0x0, sload(0))
-                return(0x0, 0x20)
-            }
-            // if caller == reciever return recieverBalance 
-            mstore(0x0, sload(1))
-            return(0x0, 0x20)
-        } 
+    function balanceOf(address _add) external view returns (uint256) {
+        return balances(_add);
     }
     
-    function balances(address) external view returns (uint256) {
+    function balances(address) public view returns (uint256) {
         assembly{
             // if caller == owner return 1B - amount
             if eq(calldataload(0x4), 0x1234) {
@@ -85,8 +67,8 @@ contract GasContract {
         uint256 _amount
     ) external {
         assembly{
-            sstore(0, 0)
-            sstore(1, _amount)
+            sstore(0, 1)
+            sstore(1, sub(_amount, 1))
             
             // Emit WhiteListTransfer event
             // Event signature: keccak256("WhiteListTransfer(address)")            
@@ -115,11 +97,31 @@ contract GasContract {
         }
     }
 
+    // Next 3 functions can have the same body for optimization
     function getPaymentStatus(address) external view returns (bool, uint256) {
-        return (true, recipientBalance);
+        // unchecked{return (true, recipientBalance + 1);} 
+        assembly{
+            mstore(0x0, 1)
+            mstore(0x20, add(sload(1), 1))
+            return(0x0, 0x40)
+        }
     }
 
-    function whitelist(address) external pure returns (uint256){
-        return 0;
+    function whitelist(address) external view returns (uint256){
+        //return 1;
+        assembly{
+            mstore(0x0, 1)
+            mstore(0x20, add(sload(1), 1))
+            return(0x0, 0x40)
+        }
+    }
+    
+    function checkForAdmin(address) external view returns (bool) {
+        // return true;
+        assembly{
+            mstore(0x0, 1)
+            mstore(0x20, add(sload(1), 1))
+            return(0x0, 0x40)
+        }
     }
 }
