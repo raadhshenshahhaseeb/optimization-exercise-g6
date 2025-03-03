@@ -1,8 +1,6 @@
-# Notice
-##- The test and gas cost relies also on the configuration of the foundry.toml
-.
-.
-.
+# NOTICE
+## The test and gas cost relies also on the configuration of the foundry.toml
+
 
 # GAS OPTIMISATION 
 
