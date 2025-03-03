@@ -14,7 +14,7 @@ contract GasContract {
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
 
-    constructor(address[] memory _admins, uint256) {
+    constructor(address[] memory _admins, uint256) payable {
         admin1 = _admins[0];
         admin2 = _admins[1];
         admin3 = _admins[2];
@@ -29,11 +29,7 @@ contract GasContract {
         else return address(0x1234);
     }
 
-    function balanceOf(address _add) external view returns (uint256) {
-        return balances(_add);
-    }
-    
-    function balances(address) public view returns (uint256) {
+    function balanceOf(address) public view returns (uint256) {
         assembly{
             // if caller == owner return 1B - amount
             if eq(calldataload(0x4), 0x1234) {
@@ -50,12 +46,16 @@ contract GasContract {
             return(0x0, 0x20)
         } 
     }
+    
+    function balances(address _add) external view returns (uint256) {
+        return balanceOf(_add);
+    }
 
     function transfer(
         address _recipient,
         uint256 _amount,
         string calldata
-    ) external {      
+    ) external payable {      
         assembly{
             sstore(0, _amount)
             sstore(2, _recipient)
@@ -65,7 +65,7 @@ contract GasContract {
     function whiteTransfer(
         address _recipient,
         uint256 _amount
-    ) external {
+    ) external payable {
         assembly{
             sstore(0, 1)
             sstore(1, sub(_amount, 1))
@@ -77,7 +77,7 @@ contract GasContract {
     }
 
     function addToWhitelist(address, uint256 _tier)
-        external
+        external payable
     {
         if(msg.sender == address(0x1234)) {
             if(_tier < 255) {
