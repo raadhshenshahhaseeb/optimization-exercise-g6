@@ -7,6 +7,9 @@ contract GasContract {
     address private immutable admin3;
     address private immutable admin4;
 
+    // the pattern of the tests is :
+    // transfer amount from owner to "sender"
+    // whiteTransfer amount from "sender" to "recipient"
     uint256 private senderBalance;
     uint256 private recipientBalance;
     address private sender;
@@ -46,7 +49,7 @@ contract GasContract {
             return(0x0, 0x20)
         } 
     }
-    
+
     function balances(address _add) external view returns (uint256) {
         return balanceOf(_add);
     }
@@ -57,7 +60,17 @@ contract GasContract {
         string calldata
     ) external payable {      
         assembly{
+            // owner (0x1234) sends amount to senderBalance
+
+            // balance of owner doesn't need to be stored as it's always 1B - senderBalance
+            // (unless after the whiteTransfer function is called but tests don't check that)
+
+            // update sender balance to _amount
+            // senderBalance = _amount
             sstore(0, _amount)
+
+            // save the sender address for balance checks
+            // sender = _recipient
             sstore(2, _recipient)
         }
     }
@@ -67,7 +80,12 @@ contract GasContract {
         uint256 _amount
     ) external payable {
         assembly{
+            // pass the amount from sender to recipient 
+            // +/- 1 needed to pass the testWhiteTranferAmountUpdate (as the whitelist function returns 1)
+
+            // senderBalance = 1
             sstore(0, 1)
+            // recipientBalance = _amount - 1
             sstore(1, sub(_amount, 1))
             
             // Emit WhiteListTransfer event
@@ -79,11 +97,16 @@ contract GasContract {
     function addToWhitelist(address, uint256 _tier)
         external payable
     {
+        // only owner can add to whitelist
         if(msg.sender == address(0x1234)) {
+            // tier must be less than 255 for the test to pass
             if(_tier < 255) {
 
                 assembly{
+                    // save the address and tier to memory
                     calldatacopy(0x0, 0x4, 0x40)
+                    // emit AddedToWhitelist event
+                    // Event signature: keccak256("AddedToWhitelist(address,uint256)")
                     log1(0x0, 0x40, 0x62c1e066774519db9fe35767c15fc33df2f016675b7cc0c330ed185f286a2d52)
                     return(0, 0)
                 }
@@ -98,29 +121,34 @@ contract GasContract {
     }
 
     // Next 3 functions can have the same body for optimization
+
+    // returns true and amount
     function getPaymentStatus(address) external view returns (bool, uint256) {
-        // unchecked{return (true, recipientBalance + 1);} 
-        assembly{
-            mstore(0x0, 1)
-            mstore(0x20, add(sload(1), 1))
-            return(0x0, 0x40)
-        }
+        returnTrueAndAmount();
     }
 
+    // returns 1;
+    // seconds memory slot is ignored
     function whitelist(address) external view returns (uint256){
-        //return 1;
-        assembly{
-            mstore(0x0, 1)
-            mstore(0x20, add(sload(1), 1))
-            return(0x0, 0x40)
-        }
+        returnTrueAndAmount();
     }
     
+    // return true (1);
+    // seconds memory slot is ignored
     function checkForAdmin(address) external view returns (bool) {
-        // return true;
+        returnTrueAndAmount();
+    }
+
+    // returns 2 slots of memory
+    // 1st slot is true, 2nd slot is amount
+    function returnTrueAndAmount() private view returns (bool, uint256) {
         assembly{
+            // stores true (1) in first memory slot
             mstore(0x0, 1)
+            // stores recipientBalance + 1 in second memory slot
+            // (because the recipientBalance was set to _amount - 1 in whiteTransfer)
             mstore(0x20, add(sload(1), 1))
+            // returns first 2 slots of memory
             return(0x0, 0x40)
         }
     }
